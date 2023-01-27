@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://ebu.ch/ear-adm-toolbox/schemas/config",
+  "title": "ADM Toolbox process graph configuration",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "The config schema version",
+      "type": "integer"
+    },
+    "processes": {
+      "type": "array",
+      "description": "A list of processes to be added to the graph",
+      "items": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "process.schema.json"
+          },
+          {
+            "$ref": "ports.schema.json"
+          },
+          {
+            "$ref": "processes.schema.json"
+          }
+        ]
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "A list of additional connections to be applied to the graph",
+      "items": {
+        "type": "array",
+        "description": "A connection from the first named port to the second named port",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 2,
+        "maxItems": 2
+      }
+    }
+  }
+}

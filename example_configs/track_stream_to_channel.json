@@ -1,0 +1,31 @@
+{
+    "$schema": "../data/schemas/config.schema.json",
+    "version": 0,
+    "processes": [
+        {
+            "name": "input",
+            "type": "read_adm_bw64",
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "convert_track_stream_to_channel",
+            "type": "convert_track_stream_to_channel",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "remove_unused_elements",
+            "type": "remove_unused_elements",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "output",
+            "type": "write_adm_bw64",
+            "in_ports": ["in_axml"]
+        }
+    ],
+    "connections": [
+        ["input.out_samples", "output.in_samples"]
+    ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://ebu.ch/ear-adm-toolbox/schemas/process",
+  "title": "process",
+  "description": "An object describing the type and version of a process within an EAT graph",
+  "type": "object",
+  "properties": {
+    "type": {
+      "description": "The type of process required"
+    },
+    "version": {
+      "description": "The process version",
+      "type": "string"
+    },
+    "name": {
+      "description": "A name to identify this process instance",
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Type-specific process configuration parameters"
+    }
+  },
+  "required": [
+    "type",
+    "name"
+  ]
+}

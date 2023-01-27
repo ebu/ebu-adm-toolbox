@@ -1,0 +1,9 @@
+{
+  "name": "valijson",
+  "version": "1.0",
+  "description": "Header-only C++ library for JSON Schema validation",
+  "dependencies": [
+    "vcpkg-cmake",
+    "vcpkg-cmake-config"
+  ]
+}

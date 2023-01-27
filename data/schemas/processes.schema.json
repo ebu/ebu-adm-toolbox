@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "oneOf": [
+    {
+      "$ref": "limit_interaction.schema.json"
+    },
+    {
+      "$ref": "drop_blockformat_subelements.schema.json"
+    },
+    {
+      "$ref": "path_process.schema.json"
+    },
+    {
+      "$ref": "layout_processes.schema.json"
+    },
+    {
+      "$ref": "set_profiles.schema.json"
+    },
+    {
+      "$ref": "validate.schema.json"
+    },
+    {
+      "$ref": "set_programme_loudness.schema.json"
+    },
+    {
+      "$ref": "remove_elements.schema.json"
+    },
+    {
+      "$ref": "resample_blocks.schema.json"
+    },
+    {
+      "$ref": "rewrite_content_objects_emission.schema.json"
+    },
+    {
+      "$ref": "set_version.schema.json"
+    },
+    {
+      "$ref": "parameterless_processes.schema.json"
+    }
+  ]
+}

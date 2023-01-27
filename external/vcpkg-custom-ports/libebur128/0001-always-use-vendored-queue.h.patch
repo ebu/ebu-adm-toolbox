@@ -1,0 +1,26 @@
+From 10e70848fe1a53e50417b246d2734094c865c5b2 Mon Sep 17 00:00:00 2001
+From: Thomas Nixon <tom@tomn.co.uk>
+Date: Thu, 20 Oct 2022 16:16:56 +0100
+Subject: [PATCH] always use vendored queue.h
+
+---
+ ebur128/ebur128.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/ebur128/ebur128.c b/ebur128/ebur128.c
+index 6550e89..ef65101 100644
+--- a/ebur128/ebur128.c
++++ b/ebur128/ebur128.c
+@@ -8,8 +8,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+-/* This can be replaced by any BSD-like queue implementation. */
+-#include <sys/queue.h>
++#include "queue/sys/queue.h"
+ 
+ #define CHECK_ERROR(condition, errorcode, goto_point)                          \
+   if ((condition)) {                                                           \
+-- 
+2.33.3
+

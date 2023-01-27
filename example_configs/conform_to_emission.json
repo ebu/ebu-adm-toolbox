@@ -1,0 +1,209 @@
+{
+    "$schema": "../data/schemas/config.schema.json",
+    "version": 0,
+    "processes": [
+        {
+            "name": "input",
+            "type": "read_adm_bw64",
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "add_block_rtimes",
+            "type": "add_block_rtimes",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "convert_track_stream_to_channel",
+            "type": "convert_track_stream_to_channel",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "remove_object_times_data_safe",
+            "type": "remove_object_times_data_safe",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "remove_object_times_common_unsafe",
+            "type": "remove_object_times_common_unsafe",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_position_defaults",
+            "type": "set_position_defaults",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "remove_jump_position",
+            "type": "remove_jump_position",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "drop_blockformat_subelements",
+            "type": "drop_blockformat_subelements",
+            "parameters": {
+                "objects_subelements": [
+                    "Diffuse",
+                    "ChannelLock",
+                    "ScreenRef",
+                    "Width",
+                    "Depth",
+                    "Height",
+                    "Gain",
+                    "Headlocked",
+                    "HeadphoneVirtualise"
+                ]
+            },
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "resample_blocks",
+            "type": "resample_blocks",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"],
+            "parameters": {
+                "min_duration": "00:00:00.005"
+            }
+        },
+        {
+            "name": "remove_importance",
+            "type": "remove_importance",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "limit_interaction",
+            "type": "limit_interaction",
+            "parameters": {
+                "position_range": {
+                    "azimuth": {
+                        "min": {
+                            "min": -30.0,
+                            "max": 0.0
+                        },
+                        "max": {
+                            "min": 0.0,
+                            "max": 30.0
+                        },
+                        "permitted": true
+                    },
+                    "elevation": {
+                        "permitted": false
+                    },
+                    "distance": {
+                        "permitted": false
+                    },
+                    "X": {
+                        "min": {
+                            "min": -1.0,
+                            "max": 0.0
+                        },
+                        "max": {
+                            "min": 0.0,
+                            "max": 1.0
+                        },
+                        "permitted": true
+                    },
+                    "Y": {
+                        "permitted": false
+                    },
+                    "Z": {
+                        "permitted": false
+                    }
+                },
+                "gain_range": {
+                    "min": {
+                        "max": {
+                            "gain": 0.0,
+                            "unit": "dB"
+                        }
+                    },
+                    "max": {
+                        "min": {
+                            "gain": 0.0,
+                            "unit": "dB"
+                        },
+                        "max": {
+                            "gain": 31.0,
+                            "unit": "dB"
+                        }
+                    }
+                },
+                "disable_interaction_type": [
+                    "onOff"
+                ],
+                "remove_disabled_ranges": true
+            },
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "rewrite_content_objects_emission",
+            "type": "rewrite_content_objects_emission",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "infer_object_interact",
+            "type": "infer_object_interact",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_content_dialogue_default",
+            "type": "set_content_dialogue_default",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_profiles",
+            "type": "set_profiles",
+            "parameters": {
+                "profiles": [
+                    {
+                        "type": "itu_emission",
+                        "level": 0
+                    }
+                ]
+            },
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_version",
+            "type": "set_version",
+            "parameters": {
+                "version": "ITU-R_BS.2076-3"
+            },
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "remove_silent_atu",
+            "type": "remove_silent_atu",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml", "out_samples"]
+        },
+        {
+            "name": "update_all_programme_loudnesses",
+            "type": "update_all_programme_loudnesses",
+            "in_ports": ["in_axml", "in_samples"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "output",
+            "type": "write_adm_bw64",
+            "in_ports": ["in_axml"]
+        }
+    ],
+    "connections": [
+        ["input.out_samples", "remove_silent_atu.in_samples"],
+        ["remove_silent_atu.out_samples", "output.in_samples"]
+    ]
+}

@@ -1,0 +1,86 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg",
+      "displayName": "VCPKG Config",
+      "description": "Use VCPKG to supply dependencies",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/external/vcpkg-custom-ports",
+        "VCPKG_MANIFEST_FEATURES": "tests"
+      },
+      "environment": {
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "vcpkg",
+      "displayName": "Debug",
+      "generator": "Ninja",
+      "description": "Debug build using Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "vcpkg",
+      "displayName": "Release",
+      "generator": "Ninja",
+      "description": "Release build using Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "format",
+      "generator": "Ninja",
+      "description": "Check cmake-format and clang-format conformance",
+      "binaryDir": "${sourceDir}/build/format",
+      "cacheVariables": {
+        "EAT_BUILD": false,
+        "EAT_FORMAT": true
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "format",
+      "configurePreset": "format",
+      "targets": [
+        "check-format"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Configuration for parameterless processes",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "oneOf": [
+        {"const": "remove_unused"},
+        {"const": "remove_unused_elements"},
+        {"const": "fix_ds_frequency"},
+        {"const": "fix_block_durations"},
+        {"const": "fix_stream_pack_refs"},
+        {"const": "convert_track_stream_to_channel"},
+        {"const": "add_block_rtimes"},
+        {"const": "update_all_programme_loudnesses"},
+        {"const": "set_position_defaults"},
+        {"const": "remove_silent_atu"},
+        {"const": "remove_jump_position"},
+        {"const": "remove_object_times_data_safe"},
+        {"const": "remove_object_times_common_unsafe"},
+        {"const": "remove_importance"},
+        {"const": "infer_object_interact"},
+        {"const": "set_content_dialogue_default"}
+      ]
+    }
+  }
+}

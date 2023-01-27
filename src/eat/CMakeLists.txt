@@ -1,0 +1,66 @@
+target_sources(
+  eat
+  PRIVATE config_file/make_graph.cpp
+          config_file/make_process.cpp
+          config_file/validate_config.cpp
+          process/adm_bw64.cpp
+          process/chna.cpp
+          process/channel_mapping.cpp
+          process/block.cpp
+          process/block_modification.cpp
+          process/block_resampling.cpp
+          process/limit_interaction.cpp
+          process/directspeaker_conversion.cpp
+          process/block_subelement_dropper.cpp
+          process/jump_position_removal.cpp
+          process/misc.cpp
+          framework/evaluate.cpp
+          framework/evaluate_progress.cpp
+          framework/process.cpp
+          process/language_codes.cpp
+          process/language_codes_data.hpp
+          process/loudness.cpp
+          process/profile_conversion_misc.cpp
+          process/remove_elements.cpp
+          process/remove_unused.cpp
+          process/temp_dir.cpp
+          process/validate.cpp
+          process/validate_process.cpp
+          render/pack_allocation.cpp
+          render/rendering_items.cpp
+          render/rendering_items_options_by_id.cpp
+          render/render.cpp
+          utilities/check_samples.cpp
+          utilities/element_visitor.cpp
+          utilities/to_dot.cpp
+          utilities/ostream_operators.cpp
+          utilities/parse_id_variant.cpp)
+
+if(EAT_BUILD_TESTS)
+  target_sources(
+    test_eat
+    PRIVATE config_file/make_graph.test.cpp
+            framework/functional.test.cpp
+            framework/streaming.test.cpp
+            framework/utilities.test.cpp
+            framework/utility_processes.test.cpp
+            process/adm_bw64.test.cpp
+            process/block_modification.test.cpp
+            process/block_resampling.test.cpp
+            process/block_subelement_dropper.test.cpp
+            process/language_codes.test.cpp
+            process/silence_detect.test.cpp
+            process/directspeaker_conversion.test.cpp
+            process/misc.test.cpp
+            process/jump_position_removal.test.cpp
+            process/silence_detect.test.cpp
+            process/limit_interaction.test.cpp
+            process/time_utils.test.cpp
+            process/validate.test.cpp
+            render/pack_allocation.test.cpp
+            render/rendering_items.test.cpp
+            render/render.test.cpp
+            utilities/check_samples.test.cpp
+            utilities/element_visitor.test.cpp)
+
+endif()

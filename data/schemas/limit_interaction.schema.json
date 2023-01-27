@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://ebu.ch/ear-adm-toolbox/schemas/limit_interaction",
+  "title": "limit_interaction",
+  "description": "Configuration for the EAT limit_interaction processor",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "limit_interaction"
+    },
+    "in_ports": {
+      "items": {
+        "enum": [
+          "in_axml"
+        ],
+        "minItems": 0,
+        "maxItems": 1
+      }
+    },
+    "out_ports": {
+      "items": {
+        "enum": [
+          "out_axml"
+        ],
+        "minItems": 0,
+        "maxItems": 1
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "position_range": {
+          "description": "The constraints to be applied to the the Position ADM attributes of the interactionRange Property",
+          "properties": {
+            "azimuth": {
+              "description": "The constraints to be applied to the permitted limits of azimuth interaction",
+              "$ref": "#/$defs/range_constraint"
+            },
+            "elevation": {
+              "description": "The constraints to be applied to the permitted limits of elevation interaction",
+              "$ref": "#/$defs/range_constraint"
+            },
+            "distance": {
+              "description": "The constraints to be applied to the permitted limits of distance interaction",
+              "$ref": "#/$defs/range_constraint"
+            },
+            "X": {
+              "description": "The constraints to be applied to the permitted limits of X interaction",
+              "$ref": "#/$defs/range_constraint"
+            },
+            "Y": {
+              "description": "The constraints to be applied to the permitted limits of Y interaction",
+              "$ref": "#/$defs/range_constraint"
+            },
+            "Z": {
+              "description": "The constraints to be applied to the permitted limits of Z interaction",
+              "$ref": "#/$defs/range_constraint"
+            }
+          },
+          "additionalProperties": false
+        },
+        "gain_range": {
+          "description": "The constraints to be applied to the permitted limits of Gain interaction",
+          "$ref": "#/$defs/gain_range_constraint"
+        },
+        "disable_interaction_type": {
+          "description": "A list of interaction types to remove from the output ADM",
+          "type": "array",
+          "items": {
+            "enum": [
+              "position",
+              "gain",
+              "onOff"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "remove_disabled_ranges": {
+          "description": "Whether to remove InteractionRanges if the associated interaction type is disabled",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "range_constraint": {
+      "type": "object",
+      "description": "A definition of a constraint on a range, describing the allowed values of the ranges minimum and maximum limits",
+      "oneOf": [
+        {
+          "properties": {
+            "min": {
+              "$ref": "#/$defs/constraint"
+            },
+            "max": {
+              "$ref": "#/$defs/constraint"
+            },
+            "permitted": {
+              "description": "Whether this range should be present in the output ADM",
+              "const": true
+            }
+          },
+          "required": [
+            "permitted"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "permitted": {
+              "description": "Whether this range should be present in the output ADM",
+              "const": false
+            }
+          },
+          "required": [
+            "permitted"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "constraint": {
+      "type": "object",
+      "description": "A constraint to clamp a value between a minimum and/or maximum",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gain_range_constraint": {
+      "type": "object",
+      "description": "A definition of a constraint on a gain range, describing the allowed values of the ranges minimum and maximum limits",
+      "properties": {
+        "min": {
+          "$ref": "#/$defs/gain_constraint"
+        },
+        "max": {
+          "$ref": "#/$defs/gain_constraint"
+        },
+        "permitted": {
+          "type": "boolean",
+          "description": "Whether this range should be present in the output ADM"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gain_constraint": {
+      "type": "object",
+      "description": "A constraint to clamp a gain value between a minimum and/or maximum",
+      "properties": {
+        "min": {
+          "$ref": "#/$defs/gain"
+        },
+        "max": {
+          "$ref": "#/$defs/gain"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gain": {
+      "type": "object",
+      "description": "An audio gain described as a linear value, or a value in decibels",
+      "properties": {
+        "gain": {
+          "description": "The value of the gain",
+          "type": "number"
+        },
+        "unit": {
+          "description": "The unit in which the gain is represented",
+          "enum": [
+            "dB",
+            "linear"
+          ]
+        }
+      },
+      "required": [
+        "gain"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

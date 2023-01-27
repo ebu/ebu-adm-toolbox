@@ -1,0 +1,63 @@
+From 9e297bd6b5075e250df30a528462c131f1647932 Mon Sep 17 00:00:00 2001
+From: Thomas Nixon <tom@tomn.co.uk>
+Date: Thu, 3 Nov 2022 10:44:53 +0000
+Subject: [PATCH 2/2] don't use non-standard M_PI macro
+
+---
+ ebur128/ebur128.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/ebur128/ebur128.c b/ebur128/ebur128.c
+index ef65101..e2b72d4 100644
+--- a/ebur128/ebur128.c
++++ b/ebur128/ebur128.c
+@@ -4,12 +4,14 @@
+ 
+ #include <float.h>
+ #include <limits.h>
+-#include <math.h> /* You may have to define _USE_MATH_DEFINES if you use MSVC */
++#include <math.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
+ #include "queue/sys/queue.h"
+ 
++#define PI 3.14159265358979323846
++
+ #define CHECK_ERROR(condition, errorcode, goto_point)                          \
+   if ((condition)) {                                                           \
+     errcode = (errorcode);                                                     \
+@@ -157,10 +159,10 @@ interp_create(unsigned int taps, unsigned int factor, unsigned int channels) {
+     double m = (double) j - (double) (interp->taps - 1) / 2.0;
+     double c = 1.0;
+     if (fabs(m) > ALMOST_ZERO) {
+-      c = sin(m * M_PI / interp->factor) / (m * M_PI / interp->factor);
++      c = sin(m * PI / interp->factor) / (m * PI / interp->factor);
+     }
+     /* Apply Hanning window */
+-    c *= 0.5 * (1 - cos(2 * M_PI * j / (interp->taps - 1)));
++    c *= 0.5 * (1 - cos(2 * PI * j / (interp->taps - 1)));
+ 
+     if (fabs(c) > ALMOST_ZERO) { /* Ignore any zero coeffs. */
+       /* Put the coefficient into the correct subfilter */
+@@ -255,7 +257,7 @@ static int ebur128_init_filter(ebur128_state* st) {
+   double G = 3.999843853973347;
+   double Q = 0.7071752369554196;
+ 
+-  double K = tan(M_PI * f0 / (double) st->samplerate);
++  double K = tan(PI * f0 / (double) st->samplerate);
+   double Vh = pow(10.0, G / 20.0);
+   double Vb = pow(Vh, 0.4996667741545416);
+ 
+@@ -276,7 +278,7 @@ static int ebur128_init_filter(ebur128_state* st) {
+ 
+   f0 = 38.13547087602444;
+   Q = 0.5003270373238773;
+-  K = tan(M_PI * f0 / (double) st->samplerate);
++  K = tan(PI * f0 / (double) st->samplerate);
+ 
+   ra[1] = 2.0 * (K * K - 1.0) / (1.0 + K / Q + K * K);
+   ra[2] = (1.0 - K / Q + K * K) / (1.0 + K / Q + K * K);
+-- 
+2.33.3
+

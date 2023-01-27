@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "drop_blockformat_subelements"
+    },
+    "in_ports": {
+      "type": "array",
+      "items": {
+        "enum": ["in_axml"]
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "out_ports": {
+      "type": "array",
+      "items": {
+        "enum": ["out_axml"]
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "objects_subelements": {
+          "description": "A list of sub-element types to remove from all Objects type audioBlockFormats",
+          "type": "array",
+          "items": {
+            "enum": [
+              "Diffuse",
+              "ChannelLock",
+              "ObjectDivergence",
+              "JumpPosition",
+              "ScreenRef",
+              "Width",
+              "Depth",
+              "Height",
+              "Gain",
+              "Importance",
+              "Headlocked",
+              "HeadphoneVirtualise"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

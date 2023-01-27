@@ -1,0 +1,19 @@
+# MacOS
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+cmake-build-*/
+
+# CMake
+build*/
+CMakeUserPresets.json
+
+# vim
+*.swp
+
+# Qt Creator
+CMakeLists.txt.user
+
+# Visual studio
+.vs

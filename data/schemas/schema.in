@@ -1,0 +1,5 @@
+#include <nlohmann/json.hpp>
+namespace eat::config_file {
+using namespace nlohmann::literals;
+auto @SCHEMA_NAME@ = R"(@schema_contents@)"_json;
+}

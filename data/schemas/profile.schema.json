@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "A description of an ADM profile",
+  "description": "A description of an ADM profile",
+  "type": "object",
+  "anyOf": [
+    {
+      "properties": {
+        "type": {
+          "description": "The profile name",
+          "const": "itu_emission"
+        },
+        "level": {
+          "description": "The profile level",
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "description": "The profile name",
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "adm",
+  "version-string": "0.13.1",
+  "homepage": "https://github.com/ebu/libadm",
+  "description": "ITU-R BS.2076 Library",
+  "dependencies": [
+    "vcpkg-cmake",
+    "vcpkg-cmake-config",
+    "boost-optional",
+    "boost-iterator",
+    "boost-variant",
+    "boost-range",
+    "boost-rational",
+    "boost-format",
+    "boost-integer",
+    "boost-type-index",
+    "boost-functional"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+    "$schema": "../data/schemas/config.schema.json",
+    "version": 0,
+    "processes": [
+        {
+            "name": "input",
+            "type": "read_adm_bw64",
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "add_block_rtimes",
+            "type": "add_block_rtimes",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "render",
+            "type": "render",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_samples"]
+        },
+        {
+            "name": "output",
+            "type": "write_bw64",
+            "in_ports": ["in_samples"]
+        }
+    ],
+    "connections": [
+        ["input.out_samples", "render.in_samples"]
+    ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "configuration for the resample_blocks process",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "resample_blocks"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "min_duration": {
+          "description": "The minimum block duration after resampling, specified in ADM time format",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

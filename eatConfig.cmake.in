@@ -1,0 +1,115 @@
+########################################################################################################################
+# To request eat as a shared library, set COMPONENTS to SHARED_LIB
+# To request eat as a static library, set COMPONENTS to STATIC_LIB
+# If neither is specified, the config will select automatically based on the value of BUILD_SHARED and installed
+# configurations.
+#
+# Note the approach used in this file means that only one of static or shared eat can be used in a single configuration
+# of a dependent project.
+#
+# The alternative would be to use different target names for static/shared, but that makes life harder for dependent
+# projects that make use of BUILD_SHARED.
+#
+# Targets will probably break if BUILD_SHARED is changed after config time, but that's common enough for a
+# cache clear to generally be necessary regardless.
+########################################################################################################################
+
+# Guard against double include
+if(NOT TARGET EBU::eat)
+  set(errorVar ${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE)
+  if(CMAKE_VERSION VERSION_LESS 3.3)
+    set(${errorVar} "eat requires CMake 3.3 or later")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+  endif()
+
+  ######### determine whether to link to static or shared eat #########
+  if(NOT (EXISTS ${CMAKE_CURRENT_LIST_DIR}/eat_static.cmake))
+    set(staticLibNotFound TRUE)
+  endif()
+
+  if(NOT (EXISTS ${CMAKE_CURRENT_LIST_DIR}/eat.cmake))
+    set(sharedLibNotFound TRUE)
+  endif()
+
+  if(sharedLibNotFound AND staticLibNotFound)
+    set(${errorVar} "No eat targets available, installation is broken")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+  endif()
+
+  # Check whether static or shared requested
+  if(${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+    set(components ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+    if(STATIC_LIB IN_LIST components)
+      set(staticLibRequested TRUE)
+    endif()
+    if(SHARED_LIB IN_LIST components)
+      set(sharedLibRequested TRUE)
+    endif()
+    if(staticLibRequested AND sharedLibRequested)
+      set(${errorVar} "Either static or shared eat library components may be requested, but not both.")
+      set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+      return()
+    endif()
+  endif()
+
+  # check whether request valid
+  if(staticLibRequested AND staticLibNotFound)
+    set(${errorVar} "Requested static eat library, but no static library installed")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+  endif()
+  if(sharedLibRequested AND sharedLibNotFound)
+    set(${errorVar} "Requested shared eat library, but no shared library installed")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+  endif()
+
+  # If we have a valid request, honor it
+  if(staticLibRequested)
+    set(useStaticLib TRUE)
+  endif()
+  if(sharedLibRequested)
+    set(useSharedLib TRUE)
+  endif()
+
+  # No explicit shared/static target requested, so let's make a best guess.
+  if(NOT (staticLibRequested OR sharedLibRequested))
+    # if user is building shared, and shared target available, use that.
+    if(BUILD_SHARED_LIBS AND (NOT sharedLibNotFound))
+      set(useStaticLib FALSE)
+    elseif(NOT staticLibNotFound)
+      set(useStaticLib TRUE)
+    elseif(NOT sharedLibNotFound)
+      set(useStaticLib FALSE)
+    endif()
+    # if either user is not building shared or no shared target, use static if available.
+    # user is not building shared but no static target, so link to shared.
+  endif()
+
+  ######### Find dependencies and include appropriate targets #########
+  # Be sure to find all dependencies / do all checks before including any targets
+  # otherwise can end up in partially imported state.
+  include(CMakeFindDependencyMacro)
+  # find public (run-time) dependencies here
+  find_dependency(adm)
+  find_dependency(bw64)
+
+  if(useStaticLib)
+    # find private (build-time) dependencies here
+
+    set(infoText "static")
+    # different config for static targets so static/shared can be co-installed
+    # import static targets
+    include(${CMAKE_CURRENT_LIST_DIR}/eat_static.cmake)
+  else()
+    set(infoText "shared")
+    # import shared targets
+    include(${CMAKE_CURRENT_LIST_DIR}/eat.cmake)
+  endif()
+  set(findQuietly ${${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY})
+  if(NOT findQuietly)
+    message(NOTICE "Target EBU::eat successfully imported using ${infoText} library.")
+  endif()
+endif()

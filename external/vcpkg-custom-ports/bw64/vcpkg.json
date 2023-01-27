@@ -1,0 +1,10 @@
+{
+  "name": "bw64",
+  "version-string": "0.10.1",
+  "homepage": "https://github.com/ebu/libbw64",
+  "description": "ITU-R BS.2088 Library",
+  "dependencies": [
+    "vcpkg-cmake",
+    "vcpkg-cmake-config"
+  ]
+}

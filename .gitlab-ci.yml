@@ -1,0 +1,121 @@
+.get-cmake: &get-cmake
+  - echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list
+  - apt update && apt -y install ninja-build cmake/bullseye-backports
+
+.get-dependencies: &get-dependencies
+    # curl/zip/unzip/tar needed to bootstrap vcpkg, pkg-config for vcpkg-fixup-pkgconfig, ccache for caching between runs
+  - apt -y install curl zip unzip tar ccache pkg-config
+
+.prep-ccache: &prep-ccache
+  # need -p as ccache dir restored from cache so will already exist after first run
+  - mkdir -p ccache
+  - export CCACHE_BASEDIR=${PWD}
+  - export CCACHE_DIR=${PWD}/ccache
+
+.main-build: &main-build
+  - ./external/vcpkg/bootstrap-vcpkg.sh
+  - cmake --preset release -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DEAT_JUNIT_TEST_OUTPUT=ON
+  - cmake --build --preset release
+
+  # Currently, we are running unit tests as part of the build.
+  # Once we have a working converter, we probably want to add and additional job to run acceptance tests
+  # against built artifact from an installed location.
+  - ctest --preset release
+  - cmake --build --preset release --target install
+
+
+check-format:
+  image: silkeh/clang:13
+  stage: build
+  before_script:
+    - *get-cmake
+    - apt -y install python3 python3-pip
+    - pip3 install cmake-format
+  script:
+    - cmake --preset format
+    - cmake --build --preset format
+
+build-gcc:
+  image: gcc
+  stage: build
+  variables:
+    # Don't think we actually need to recurse yet, but I'll definitely forget to add it if we do
+    GIT_SUBMODULE_STRATEGY: recursive
+    INSTALL_PREFIX: $${PWD}eat-gcc
+    VCPKG_CACHE_LOCATION: ${CI_PROJECT_DIR}/vcpkg-cache
+    VCPKG_BINARY_SOURCES: 'clear;files,${VCPKG_CACHE_LOCATION},readwrite'
+  before_script:
+    - *get-cmake
+    - *get-dependencies
+    - *prep-ccache
+  script:
+    - *main-build
+
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/eat-gcc
+    reports:
+      junit: ${CI_PROJECT_DIR}/build/release/test_results/*.xml
+  cache:
+    key:
+      ccache-gcc
+    paths:
+      - ccache/
+      - vcpkg-cache/
+    when:
+      'always'
+
+build-clang:
+  image: silkeh/clang:13
+  stage: build
+  variables:
+    # Don't think we actually need to recurse yet, but I'll definitely forget to add it if we do
+    GIT_SUBMODULE_STRATEGY: recursive
+    INSTALL_PREFIX: $${PWD}eat-clang
+    VCPKG_CACHE_LOCATION: ${CI_PROJECT_DIR}/vcpkg-cache
+    VCPKG_BINARY_SOURCES: 'clear;files,${VCPKG_CACHE_LOCATION},readwrite'
+  before_script:
+    - *get-cmake
+    - *get-dependencies
+    - *prep-ccache
+    - mkdir -p vcpkg-cache
+  script:
+    - *main-build
+
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/eat-clang
+    reports:
+      junit: ${CI_PROJECT_DIR}/build/release/test_results/*.xml
+  cache:
+    key:
+      ccache-clang
+    paths:
+      - ccache/
+      - vcpkg-cache/
+    when:
+      'always'
+
+docs:
+  image: python:3.9-slim
+  stage: build
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache"
+  before_script:
+    - apt update && apt -y install doxygen graphviz
+    - cd docs
+    - python -m venv env
+    - . env/bin/activate
+    - python -m pip install -r requirements.txt
+  script:
+    - sphinx-build -M html . _build
+  cache:
+    paths:
+      - "$PIP_CACHE_DIR"
+    key:
+      files:
+        - requirements.txt
+  artifacts:
+    paths:
+      - docs/_build/html/
+    name: docs-html

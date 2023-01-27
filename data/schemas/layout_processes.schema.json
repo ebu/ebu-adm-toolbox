@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Processes that use a layout",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "oneOf": [
+        {"const": "render"},
+        {"const": "measure_loudness"}
+      ]
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "layout": {
+          "description": "A renderer target speaker layout",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

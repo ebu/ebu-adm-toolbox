@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "validate process configuration",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "validate"
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "profile.schema.json"
+        }
+      }
+    }
+  }
+}

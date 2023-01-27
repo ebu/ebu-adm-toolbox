@@ -1,0 +1,14 @@
+{
+  "name": "ear",
+  "version-string": "0.9.0",
+  "homepage": "https://github.com/ebu/libear",
+  "description": "ITU-R BS.2127 Rendering Library",
+  "dependencies": [
+    "vcpkg-cmake",
+    "vcpkg-cmake-config",
+    "boost-optional",
+    "boost-variant",
+    "boost-algorithm",
+    "boost-math"
+  ]
+}

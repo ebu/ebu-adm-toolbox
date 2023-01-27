@@ -1,0 +1,22 @@
+//
+// Created by Richard Bailey on 22/11/2022.
+//
+
+#pragma once
+
+#include <string>
+#include <unordered_map>
+#include <nlohmann/json.hpp>
+@includes@
+
+namespace eat::config_file {
+std::unordered_map<std::string, nlohmann::json> config_map = {
+@map_pairs@
+};
+
+inline nlohmann::json const* fetch_doc(std::string const& uri) {
+  return &config_map[uri];
+}
+
+inline void free_doc(nlohmann::json const*) {}
+}

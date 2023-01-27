@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://ebu.ch/ear-adm-toolbox/schemas/ports",
+  "title": "ports",
+  "description": "Configuration describing process ports that should be automatically connected in an EAT graph",
+  "type": "object",
+  "properties": {
+    "in_ports": {
+      "description": "A list of input ports for this processor that should be automatically connected in the processing graph",
+      "type": "array"
+    },
+    "out_ports": {
+      "description": "A list of output ports for this processor that should be automatically connected in the processing graph",
+      "type": "array"
+    }
+  }
+}
