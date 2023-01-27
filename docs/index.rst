@@ -10,7 +10,7 @@ It contains:
 - A :ref:`command-line tool<eat-process>` ``eat-process``, which processes ADM files using the processes from the framework, as defined in a :ref:`configuration file <config_file>`.
 - A set of :ref:`example configuration files <example_configs>` for the tool, for doing things like profile conversion, loudness measurement, fixing common issues, validation etc.
 
-See the `README file on github <https://github.com/ebu/eat#readme>`_ for installation instructions and license information.
+See the `README file on github <https://github.com/ebu/ebu-adm-toolbox#readme>`_ for installation instructions and license information.
 
 .. toctree::
    :maxdepth: 2

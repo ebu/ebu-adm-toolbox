@@ -1,7 +1,7 @@
 {
   "name": "eat",
   "version-string": "0.0.1",
-  "homepage": "https://github.com/ebu/eat",
+  "homepage": "https://github.com/ebu/ebu-adm-toolbox",
   "description": "EBU ADM Toolbox (EAT)",
   "dependencies": ["adm", "bw64", "ear", "nlohmann-json", "cli11", "libebur128", "valijson"],
   "default-features": [],
