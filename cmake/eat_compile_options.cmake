@@ -68,7 +68,7 @@ function(get_eat_compile_options)
     list(APPEND chosen_options /bigobj)
     if(EAT_APPLY_COMPILER_WARNINGS)
       # might need to tune this to better match gcc
-      list(APPEND chosen_options /Wall)
+      list(APPEND chosen_options /W4)
     endif()
     if(EAT_WARNINGS_AS_ERRORS)
       list(APPEND chosen_options /WX)
