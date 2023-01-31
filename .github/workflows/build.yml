@@ -1,0 +1,145 @@
+# based on https://github.com/lukka/CppCMakeVcpkgTemplate/blob/main/.github/workflows/hosted-pure-workflow.yml
+#
+# Copyright (c) 2021, 2022 Luca Cappa
+# Released under the term specified in file LICENSE.txt
+# SPDX short identifier: MIT
+
+name: Build
+on: [workflow_dispatch, pull_request]
+
+jobs:
+  job:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: windows-latest
+            triplet: x64-windows
+          - os: ubuntu-latest
+            triplet: x64-linux
+          - os: macos-latest
+            triplet: x64-osx
+    env:
+      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+      VCPKG_ROOT: ${{ github.workspace }}/external/vcpkg
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/external/vcpkg/bincache
+      # ccache config
+      CCACHE_COMPRESS: 'true'
+      CCACHE_COMPRESSLEVEL: '6'
+      CCACHE_MAXSIZE: '500M'
+      CCACHE_WIN_VERSION: 4.7.3
+      CCACHE_WIN_HASH: 'SHA256=976651162ef09a1759ed7a77a22bda145054177fdd733c23b7875b6ebc3539b9'
+      CCACHE_KEY: 'ccache-${{ matrix.os }}'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      ######################
+      # install dependencies
+      ######################
+
+      - uses: lukka/get-cmake@v3.25.2
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: 'Install ccache on ubuntu'
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y ccache
+
+      - name: 'Install ccache on windows'
+        if: matrix.os == 'windows-latest'
+        shell: cmake -P {0}
+        run: |
+          set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_WIN_VERSION}/Windows.tar.xz")
+          file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz EXPECTED_HASH $ENV{CCACHE_WIN_HASH} SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+        working-directory: ${{ runner.workspace }}
+
+      - name: 'Install ccache on macos'
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install ccache
+
+      ######################
+      # set up vcpkg caching
+      ######################
+
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+
+      - name: Restore vcpkg and its artifacts.
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            !${{ env.VCPKG_ROOT }}/buildtrees
+            !${{ env.VCPKG_ROOT }}/packages
+            !${{ env.VCPKG_ROOT }}/downloads
+            !${{ env.VCPKG_ROOT }}/installed
+          key: |
+            ${{ hashFiles( 'vcpkg.json' ) }}-${{ hashFiles( '.git/modules/external/vcpkg/HEAD' )}}-${{ matrix.triplet }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ hashFiles( 'vcpkg.json' ) }}-${{ hashFiles( '.git/modules/external/vcpkg/HEAD' )}}-${{ matrix.triplet }}-
+
+      #######################
+      # set up ccache caching
+      #######################
+
+      - name: 'Config env for ccache'
+        run: |
+          echo "${{ runner.workspace }}" >> $GITHUB_PATH
+          echo "CCACHE_BASEDIR=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+        shell: bash
+
+      - name: ccache cache files
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ env.CCACHE_KEY }}-${{ github.run_id }}
+          restore-keys: ${{ env.CCACHE_KEY }}-
+
+      - name: 'zero ccache stats'
+        run: ccache -z
+
+      - name: 'print ccache config'
+        run: ccache -p
+
+      ###########################
+      # actual build & test steps
+      ###########################
+
+      - name: Install dependencies and generate project files
+        run: |
+          cmake --preset release
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: 'ccache'
+          CMAKE_CXX_COMPILER_LAUNCHER: 'ccache'
+
+      - name: Build (Release configuration)
+        run: |
+          cmake --build --preset release
+
+      - name: Test (Release configuration)
+        run: |
+          ctest --preset release
+
+      #########
+      # tidy up
+      #########
+
+      - name: 'print ccache stats'
+        run: ccache -s
+
+      # the github actions runner is updated frequently, and so sometimes vcpkg
+      # will decide to re-build packages to match. there's no obvious way to
+      # detect this, so prune the cache so it doesn't get too big
+      - name: 'Prune the vcpkg cache'
+        run: cmake -P "${{ github.workspace }}/.github/workflows/expire_vcpkg_cache.cmake"

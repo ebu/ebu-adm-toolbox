@@ -1,0 +1,23 @@
+name: Check Format
+on: [workflow_dispatch, pull_request]
+
+jobs:
+  check_format:
+    name: Check Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: lukka/get-cmake@v3.25.2
+
+      - name: install cmake-format
+        run: |
+          pip install cmake-format
+
+      - name: Install dependencies and generate project files
+        run: |
+          cmake --preset format
+
+      - name: Build (Release configuration)
+        run: |
+          cmake --build --preset format
