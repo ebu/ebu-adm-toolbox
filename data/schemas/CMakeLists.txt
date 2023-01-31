@@ -46,13 +46,8 @@ endforeach()
 # to the command. Confusingly it also doesn't error despite the files not
 # existing, as they are still flagged as being generated at build time. To work
 # around this limitation, we add a custom target that depends on all the
-# generated files, and add that as a dependency to eat. The custom target has ""
-# as its command so is a no-op, it's just to make the dependency work.
-# (otherwise the custom command would never run)
-add_custom_target(
-  generate_config_schema_includes
-  ""
-  DEPENDS ${header_files})
+# generated files, and add that as a dependency to eat.
+add_custom_target(generate_config_schema_includes DEPENDS ${header_files})
 add_dependencies(eat generate_config_schema_includes)
 # map_items and include_items used  to generate all_schemas.hpp
 list(JOIN map_items ",\n" map_pairs)
