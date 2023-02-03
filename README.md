@@ -73,6 +73,7 @@ libear v0.9
 libebur128 v1.2.6
 cli11 v2.2.0
 nlohmann/json v3.11.2
+valijson v1.0
 
 Catch2 v3.0.1 // Only required for tests
 ```
