@@ -53,8 +53,8 @@ tar
 
 To build:
 ```bash
-git clone git@git.ebu.io:as/adm-toolbox.git --recursive
-cd adm-toolbox
+git clone git@github.com:ebu/ebu-adm-toolbox.git --recursive
+cd ebu-adm-toolbox
 # This step may not be neccessary and should only be required once
 ./external/vcpkg/bootstrap-vcpkg.sh # bootstrap_vcpkg.bat if on windows
 # This step configures and builds using vcpkg, see CMakePresets.json for details
