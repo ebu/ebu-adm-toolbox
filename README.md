@@ -81,13 +81,15 @@ Catch2 v3.0.1 // Only required for tests
 ## Development Guidelines
 
 ### General approach
-Try and adhere to the suggestions in the [pitchfork layout](https://vector-of-bool.github.io/psl.html) 
+Try and adhere to the suggestions in the [pitchfork layout]
 Using 'separate header placement' with merged tests (i.e. separate src/include paths but tests in src)
 
 library is called 'eat' for EBU ADM Toolbox, it comprises of 
 * framework (graph generation and execution) 
 * processes (i/o, various metadata and audio manipulation)
 These components are split into eat::framework and eat::process namespaces, also reflected in the directory structure
+
+[pitchfork layout]: https://api.csswg.org/bikeshed/?force=1&url=https://raw.githubusercontent.com/vector-of-bool/pitchfork/develop/data/spec.bs
 
 ### Dependency management
 
