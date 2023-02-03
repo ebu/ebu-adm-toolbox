@@ -30,12 +30,7 @@ This will enforce a minimum block duration on `in.wav`, writing to `out.wav`.
 For information on the config file format, options and available processes, see the documentation at https://ebu-adm-toolbox.readthedocs.io/
 
 ## Compiling
-To compile the toolbox you will require a working C++20 development environment. It has been successfully compiled under:
-
-* Windows using Visual Studio 2022
-* MacOS 12.4 with Apple Clang 13.1.6
-* Debian using GCC 12 (see CI)
-* Debian using Clang 13 (see CI)
+To compile the toolbox you will require a working C++20 development environment. It's currently tested on `ubuntu-latest`, `macos-latest` and `windows-latest`; see [here](https://github.com/actions/runner-images#available-images) for details.
 
 CMake version 3.21 or higher is required to configure and build the project.
 
