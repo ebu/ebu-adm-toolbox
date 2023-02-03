@@ -5,8 +5,14 @@
 # SPDX short identifier: MIT
 
 name: Build
-on: [workflow_dispatch, pull_request]
-
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - '*'
 jobs:
   job:
     name: ${{ matrix.os }}-${{ github.workflow }}
