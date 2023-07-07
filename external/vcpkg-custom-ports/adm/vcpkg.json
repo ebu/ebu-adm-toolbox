@@ -15,5 +15,10 @@
     "boost-integer",
     "boost-type-index",
     "boost-functional"
-  ]
+  ],
+  "features": {
+    "sadm": {
+      "description": "Adds support for sadm metadata"
+    }
+  }
 }

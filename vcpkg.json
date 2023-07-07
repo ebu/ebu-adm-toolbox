@@ -6,6 +6,13 @@
   "dependencies": ["adm", "bw64", "ear", "nlohmann-json", "cli11", "libebur128", "valijson"],
   "default-features": [],
   "features": {
+    "sadm" : {
+      "description": "processors with sadm support",
+      "dependencies": [{
+        "name": "adm",
+        "features": ["sadm"]
+      }]
+    },
     "tests": {
       "description": "EAT test suite",
       "dependencies": ["catch2"]

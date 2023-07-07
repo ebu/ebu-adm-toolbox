@@ -5,6 +5,12 @@ else()
   set(EAT_IS_PRIMARY_PROJECT TRUE)
 endif()
 
+option(ENABLE_SADM "Enable build of SADM processors" OFF)
+if(ENABLE_SADM)
+  # NB, this must remain before the project() command or it will not work
+  list(APPEND VCPKG_MANIFEST_FEATURES sadm)
+endif()
+
 project(eat VERSION 0.0.1)
 
 # Options
