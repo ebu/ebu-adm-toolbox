@@ -83,7 +83,7 @@ if(EAT_BUILD)
 
   # Link dependencies
   target_link_libraries(eat PUBLIC adm bw64 ear)
-  target_link_libraries(eat PRIVATE unofficial::ebur128 CLI11::CLI11
+  target_link_libraries(eat PRIVATE unofficial::ebur128
                                     nlohmann_json::nlohmann_json valijson)
 
   # Add eat test target
@@ -166,7 +166,7 @@ if(EAT_BUILD)
 
   if(EAT_BUILD_APPS)
     add_executable(eat-process)
-    target_link_libraries(eat-process PRIVATE EBU::eat)
+    target_link_libraries(eat-process PRIVATE EBU::eat CLI11::CLI11)
 
     add_subdirectory(src/apps)
 
