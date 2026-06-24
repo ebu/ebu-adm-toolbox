@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <catch2/interfaces/catch_interfaces_capture.hpp>
 #include <catch2/internal/catch_context.hpp>
 #include <filesystem>
 #include <fstream>
@@ -24,8 +25,11 @@ namespace detail {
 
 /// get the current catch test name
 ///
-/// this is supposed to be internal to catch, but hasn't changed in a long time
-inline std::string current_test_name() { return Catch::getResultCapture().getCurrentTestName(); }
+/// this is supposed to be internal to catch, subject to change
+inline std::string current_test_name() {
+  auto const &context = Catch::getCurrentContext();
+  return context.getResultCapture()->getCurrentTestName();
+}
 
 }  // namespace detail
 
