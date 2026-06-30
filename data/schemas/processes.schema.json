@@ -36,6 +36,12 @@
     },
     {
       "$ref": "parameterless_processes.schema.json"
+    },
+    {
+      "$ref": "update_all_programme_loudnesses.schema.json"
+    },
+    {
+      "$ref": "update_all_loudnesses.schema.json"
     }
   ]
 }

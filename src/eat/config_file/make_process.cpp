@@ -177,8 +177,9 @@ framework::ProcessPtr make_render(nlohmann::json &config, const std::string &nam
 framework::ProcessPtr make_measure_loudness(nlohmann::json &config, const std::string &name) {
   auto layout_name = get<std::string>(config, "layout");
   auto layout = ear::getLayout(layout_name);
+  bool emission = get<bool>(config, "emission");
 
-  return process::make_measure_loudness(name, layout);
+  return process::make_measure_loudness(name, layout, emission);
 }
 
 framework::ProcessPtr make_set_programme_loudness(nlohmann::json &config, const std::string &name) {
@@ -186,6 +187,18 @@ framework::ProcessPtr make_set_programme_loudness(nlohmann::json &config, const 
   auto id = adm::parseAudioProgrammeId(id_str);
 
   return process::make_set_programme_loudness(name, id);
+}
+
+framework::ProcessPtr make_update_all_programme_loudnesses(nlohmann::json &config, const std::string &name) {
+  bool emission = get<bool>(config, "emission");
+
+  return process::make_update_all_programme_loudnesses(name, emission);
+}
+
+framework::ProcessPtr make_update_all_loudnesses(nlohmann::json &config, const std::string &name) {
+  bool emission = get<bool>(config, "emission");
+
+  return process::make_update_all_loudnesses(name, emission);
 }
 
 framework::ProcessPtr make_set_profiles(nlohmann::json &config, const std::string &name) {
@@ -276,7 +289,8 @@ framework::ProcessPtr make_process(nlohmann::json &config) {
       {"render", &make_render},
       {"measure_loudness", &make_measure_loudness},
       {"set_programme_loudness", &make_set_programme_loudness},
-      {"update_all_programme_loudnesses", make_process_no_args(&process::make_update_all_programme_loudnesses)},
+      {"update_all_programme_loudnesses", &make_update_all_programme_loudnesses},
+      {"update_all_loudnesses", &make_update_all_loudnesses},
       {"set_profiles", &make_set_profiles},
       {"set_position_defaults", make_process_no_args(&process::make_set_position_defaults)},
       {"remove_silent_atu", make_process_no_args(&process::make_remove_silent_atu)},
@@ -291,6 +305,8 @@ framework::ProcessPtr make_process(nlohmann::json &config) {
       {"set_version", &make_set_version},
       {"set_content_dialogue_default", make_process_no_args(&process::make_set_content_dialogue_default)},
       {"limit_interaction", &make_limit_interaction},
+      {"set_content_language", make_process_no_args(&process::make_set_content_language)},
+      {"set_programme_language", make_process_no_args(&process::make_set_programme_language)},
   }};
 
   std::string type = get<std::string>(config, "type");

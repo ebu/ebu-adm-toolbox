@@ -7,7 +7,7 @@ namespace eat::process {
 /// a process which measures the loudness of input samples
 /// - in_samples (StreamPort<InterleavedBlockPtr>) : input samples
 /// - out_loudness (DataPort<adm::LoudnessMetadata>) : measured loudness
-framework::ProcessPtr make_measure_loudness(const std::string &name, const ear::Layout &layout);
+framework::ProcessPtr make_measure_loudness(const std::string &name, const ear::Layout &layout, bool emission);
 
 /// a process which sets the loudness of an audioProgramme with the given ID
 /// - in_axml (DataPort<ADMData>) : input ADM data
@@ -20,5 +20,19 @@ framework::ProcessPtr make_set_programme_loudness(const std::string &name, const
 /// - in_axml (DataPort<ADMData>) : input ADM data
 /// - in_samples (StreamPort<InterleavedBlockPtr>) : input samples for in_axml
 /// - out_axml (DataPort<ADMData>) : output ADM data
-framework::ProcessPtr make_update_all_programme_loudnesses(const std::string &name);
+framework::ProcessPtr make_update_all_programme_loudnesses(const std::string &name, bool emission);
+
+/// a process which sets the loudness of an audioContent with the given ID
+/// - in_axml (DataPort<ADMData>) : input ADM data
+/// - in_loudness (DataPort<adm::LoudnessMetadata>) : measured loudness
+/// - out_axml (DataPort<ADMData>) : output ADM data
+framework::ProcessPtr make_set_content_loudness(const std::string &name, const adm::AudioContentId &content_id);
+
+/// a process which measures the loudness of all audioContents and audioProgrammes (by rendering
+/// them to 4+5+0) and updates the axml to match
+/// - in_axml (DataPort<ADMData>) : input ADM data
+/// - in_samples (StreamPort<InterleavedBlockPtr>) : input samples for in_axml
+/// - out_axml (DataPort<ADMData>) : output ADM data
+framework::ProcessPtr make_update_all_loudnesses(const std::string &name, bool emission);
+
 }  // namespace eat::process

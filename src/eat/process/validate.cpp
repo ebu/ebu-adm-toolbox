@@ -71,6 +71,27 @@ std::vector<ObjectContentOrNested::Message> ObjectContentOrNested::run(const ADM
   return messages;
 }
 
+std::vector<ValidStreamFormat::Message> ValidStreamFormat::run(const ADMData &adm) const {
+  std::vector<Message> messages;
+  auto elements = adm.document.read()->getElements<adm::AudioStreamFormat>();
+
+  for (auto &&element : elements) {
+    // Having both these referenced is invalid
+    auto apf = element->getReference<adm::AudioPackFormat>();
+    auto acf = element->getReference<adm::AudioChannelFormat>();
+    bool invalid = false;
+    if (apf && acf) {
+      invalid = true;
+    }
+
+    if (invalid) {
+      messages.push_back({element->get<adm::AudioStreamFormatId>()});
+    }
+  }
+
+  return messages;
+}
+
 ValidationResults ProfileValidator::run(const ADMData &adm) const {
   ValidationResults results;
 
@@ -139,6 +160,14 @@ struct FormatVisitor {
 
   std::string operator()(const ObjectContentOrNestedMessage &m) {
     return adm::formatId(m.object_id) + " has " + (m.both ? "both" : "neither");
+  }
+
+  std::string operator()(const ValidStreamFormat &) {
+    return "audioStreamFormat must NOT have both audioPackForamtIdRef and audioTrackFormatIdRef elements";
+  }
+
+  std::string operator()(const ValidStreamFormatMessage &m) {
+    return adm::formatId(m.stream_id) + " has both audioPackForamtIdRef and audioTrackFormatIdRef elements";
   }
 
   std::string operator()(const StringLength &c) {
@@ -293,6 +322,9 @@ ProfileValidator make_emission_profile_validator(int level) {
       ValidLanguage{{"audioProgramme", "language"}, LanguageCodeType::REGULAR | LanguageCodeType::UNDETERMINED});
   checks.push_back(
       ValidLanguage{{"audioContent", "language"}, LanguageCodeType::REGULAR | LanguageCodeType::UNDETERMINED});
+
+  checks.push_back(ElementPresent{{"audioProgramme"}, "language", true});
+  checks.push_back(ElementPresent{{"audioContent"}, "language", true});
 
   checks.push_back(ElementPresent{{"audioProgramme", "label"}, "language", true});
   checks.push_back(ElementPresent{{"audioContent", "label"}, "language", true});

@@ -51,8 +51,9 @@ NamedType named_cast(Value v) {
 
 class MeasureLoudness : public StreamingAtomicProcess {
  public:
-  MeasureLoudness(const std::string &name, const ear::Layout &layout)
+  MeasureLoudness(const std::string &name, const ear::Layout &layout, bool emission)
       : StreamingAtomicProcess(name),
+        emission_(emission),
         in_samples(add_in_port<StreamPort<InterleavedBlockPtr>>("in_samples")),
         out_loudness(add_out_port<DataPort<adm::LoudnessMetadata>>("out_loudness")),
         fs(48000),
@@ -98,16 +99,19 @@ class MeasureLoudness : public StreamingAtomicProcess {
 
     adm::LoudnessMetadata loudness;
     loudness.set(named_cast<adm::IntegratedLoudness>(integrated));
-    loudness.set(named_cast<adm::LoudnessRange>(range));
-    loudness.set(named_cast<adm::MaxTruePeak>(true_peak));
+    if (!emission_) {
+      loudness.set(named_cast<adm::LoudnessRange>(range));
+      loudness.set(named_cast<adm::MaxTruePeak>(true_peak));
 
-    loudness.set(adm::LoudnessMethod{"ITU-R BS.1770"});
-    loudness.set(adm::LoudnessRecType{"EBU R128"});
+      loudness.set(adm::LoudnessMethod{"ITU-R BS.1770"});
+      loudness.set(adm::LoudnessRecType{"EBU R128"});
+    }
 
     out_loudness->set_value(std::move(loudness));
   }
 
  private:
+  bool emission_;
   StreamPortPtr<InterleavedBlockPtr> in_samples;
   DataPortPtr<adm::LoudnessMetadata> out_loudness;
   unsigned int fs;
@@ -115,8 +119,8 @@ class MeasureLoudness : public StreamingAtomicProcess {
   std::unique_ptr<ebur128_state, ebur128_state_deleter> state;
 };
 
-framework::ProcessPtr make_measure_loudness(const std::string &name, const ear::Layout &layout) {
-  return std::make_shared<MeasureLoudness>(name, layout);
+framework::ProcessPtr make_measure_loudness(const std::string &name, const ear::Layout &layout, bool emission) {
+  return std::make_shared<MeasureLoudness>(name, layout, emission);
 }
 
 class SetProgrammeLoudness : public FunctionalAtomicProcess {
@@ -157,8 +161,9 @@ framework::ProcessPtr make_set_programme_loudness(const std::string &name, const
 
 class UpdateAllProgrammeLoudnesses : public DynamicSubgraph {
  public:
-  UpdateAllProgrammeLoudnesses(const std::string &name)
+  UpdateAllProgrammeLoudnesses(const std::string &name, bool emission)
       : DynamicSubgraph(name),
+        emission_(emission),
         in_samples(add_in_port<StreamPort<InterleavedBlockPtr>>("in_samples")),
         in_axml(add_in_port<DataPort<ADMData>>("in_axml")),
         out_axml(add_out_port<DataPort<ADMData>>("out_axml")) {}
@@ -186,7 +191,7 @@ class UpdateAllProgrammeLoudnesses : public DynamicSubgraph {
       render::SelectionOptionsId options = {render::ProgrammeIdStart{id}};
       auto render = render::make_render("measure_" + id_str, layout, 1024, options);
       graph->register_process(render);
-      auto measure = graph->add_process<MeasureLoudness>("measure_" + id_str, layout);
+      auto measure = graph->add_process<MeasureLoudness>("measure_" + id_str, layout, emission_);
       auto update = graph->add_process<SetProgrammeLoudness>("update_" + id_str, id);
 
       graph->connect(parent_in_samples->port, render->get_in_port("in_samples"));
@@ -203,13 +208,127 @@ class UpdateAllProgrammeLoudnesses : public DynamicSubgraph {
   }
 
  private:
+  bool emission_;
   StreamPortPtr<InterleavedBlockPtr> in_samples;
   DataPortPtr<ADMData> in_axml;
   DataPortPtr<ADMData> out_axml;
 };
 
-framework::ProcessPtr make_update_all_programme_loudnesses(const std::string &name) {
-  return std::make_shared<UpdateAllProgrammeLoudnesses>(name);
+framework::ProcessPtr make_update_all_programme_loudnesses(const std::string &name, bool emission) {
+  return std::make_shared<UpdateAllProgrammeLoudnesses>(name, emission);
+}
+
+class SetContentLoudness : public FunctionalAtomicProcess {
+ public:
+  SetContentLoudness(const std::string &name, const adm::AudioContentId &content_id_)
+      : FunctionalAtomicProcess(name),
+        in_axml(add_in_port<DataPort<ADMData>>("in_axml")),
+        in_loudness(add_in_port<DataPort<adm::LoudnessMetadata>>("in_loudness")),
+        out_axml(add_out_port<DataPort<ADMData>>("out_axml")),
+        content_id(content_id_) {}
+
+  void process() override {
+    auto adm = std::move(in_axml->get_value());
+    auto doc = adm.document.move_or_copy();
+
+    auto loudness = std::move(in_loudness->get_value());
+
+    auto content = doc->lookup(content_id);
+    if (!content) throw std::runtime_error("could not find content " + adm::formatId(content_id));
+
+    content->unset<adm::LoudnessMetadatas>();
+    content->add(loudness);
+
+    adm.document = std::move(doc);
+    out_axml->set_value(std::move(adm));
+  }
+
+ private:
+  DataPortPtr<ADMData> in_axml;
+  DataPortPtr<adm::LoudnessMetadata> in_loudness;
+  DataPortPtr<ADMData> out_axml;
+  adm::AudioContentId content_id;
+};
+
+framework::ProcessPtr make_set_content_loudness(const std::string &name, const adm::AudioContentId &content_id) {
+  return std::make_shared<SetContentLoudness>(name, content_id);
+}
+
+class UpdateAllLoudnesses : public DynamicSubgraph {
+ public:
+  UpdateAllLoudnesses(const std::string &name, bool emission)
+      : DynamicSubgraph(name),
+        emission_(emission),
+        in_samples(add_in_port<StreamPort<InterleavedBlockPtr>>("in_samples")),
+        in_axml(add_in_port<DataPort<ADMData>>("in_axml")),
+        out_axml(add_out_port<DataPort<ADMData>>("out_axml")) {}
+
+ protected:
+  virtual GraphPtr build_subgraph() override {
+    auto graph = std::make_shared<Graph>();
+
+    auto parent_in_axml = graph->add_process<ParentDataInput<ADMData>>(std::string{"in_axml"});
+    auto parent_out_axml = graph->add_process<ParentDataOutput<ADMData>>(std::string{"out_axml"});
+    auto parent_in_samples = graph->add_process<ParentStreamInput<InterleavedBlockPtr>>(std::string{"in_samples"});
+
+    // axml is passed through one SetProgrammeLoudness per programme before the
+    // output; this will be updated on each loop to point to the output port of
+    // the last SetProgrammeLoudness
+    PortPtr current_axml_port = parent_in_axml->get_out_port("out");
+
+    auto layout = ear::getLayout("4+5+0");
+
+    auto adm = in_axml->get_value().document.read();
+    for (const auto &programme : adm->getElements<adm::AudioProgramme>()) {
+      auto id = programme->get<adm::AudioProgrammeId>();
+      std::string id_str = adm::formatId(id);
+
+      render::SelectionOptionsId options = {render::ProgrammeIdStart{id}};
+      auto render = render::make_render("measure_" + id_str, layout, 1024, options);
+      graph->register_process(render);
+      auto measure = graph->add_process<MeasureLoudness>("measure_" + id_str, layout, emission_);
+      auto update = graph->add_process<SetProgrammeLoudness>("update_" + id_str, id);
+
+      graph->connect(parent_in_samples->port, render->get_in_port("in_samples"));
+      graph->connect(parent_in_axml->port, render->get_in_port("in_axml"));
+      graph->connect(render->get_out_port("out_samples"), measure->get_in_port("in_samples"));
+      graph->connect(measure->get_out_port("out_loudness"), update->get_in_port("in_loudness"));
+      graph->connect(current_axml_port, update->get_in_port("in_axml"));
+      current_axml_port = update->get_out_port("out_axml");
+    }
+
+    for (const auto &content : adm->getElements<adm::AudioContent>()) {
+      auto id = content->get<adm::AudioContentId>();
+      std::string id_str = adm::formatId(id);
+
+      render::SelectionOptionsId options = {render::ContentIdStart{id}};
+      auto render = render::make_render("measure_" + id_str, layout, 1024, options);
+      graph->register_process(render);
+      auto measure = graph->add_process<MeasureLoudness>("measure_" + id_str, layout, emission_);
+      auto update = graph->add_process<SetContentLoudness>("update_" + id_str, id);
+
+      graph->connect(parent_in_samples->port, render->get_in_port("in_samples"));
+      graph->connect(parent_in_axml->port, render->get_in_port("in_axml"));
+      graph->connect(render->get_out_port("out_samples"), measure->get_in_port("in_samples"));
+      graph->connect(measure->get_out_port("out_loudness"), update->get_in_port("in_loudness"));
+      graph->connect(current_axml_port, update->get_in_port("in_axml"));
+      current_axml_port = update->get_out_port("out_axml");
+    }
+
+    graph->connect(current_axml_port, parent_out_axml->port);
+
+    return graph;
+  }
+
+ private:
+  bool emission_;
+  StreamPortPtr<InterleavedBlockPtr> in_samples;
+  DataPortPtr<ADMData> in_axml;
+  DataPortPtr<ADMData> out_axml;
+};
+
+framework::ProcessPtr make_update_all_loudnesses(const std::string &name, bool emission) {
+  return std::make_shared<UpdateAllLoudnesses>(name, emission);
 }
 
 }  // namespace eat::process

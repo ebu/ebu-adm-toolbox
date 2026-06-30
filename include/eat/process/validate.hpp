@@ -418,9 +418,34 @@ struct ObjectContentOrNested {
   void visit(F) {}
 };
 
+struct ValidStreamFormatMessage {
+  static std::string name() { return "ValidStreamFormatMessage"; }
+
+  adm::AudioStreamFormatId stream_id;
+
+  template <typename F>
+  void visit(F f) {
+    f("stream_id", stream_id);
+  }
+};
+
+/// check that audioStreamFormat contains the invalid combination of both
+/// audioChannelFormat and audioPackFormat references
+struct ValidStreamFormat {
+  static std::string name() { return "ValidStreamFormat"; }
+
+  using Message = ValidStreamFormatMessage;
+
+  std::vector<Message> run(const ADMData &adm) const;
+
+  template <typename F>
+  void visit(F) {}
+};
+
 /// known checks
-using Check = std::variant<ElementInList<std::string>, ElementInRange<float>, ElementPresent, NumElements,
-                           ObjectContentOrNested, StringLength, UniqueElements<std::string>, ValidLanguage>;
+using Check =
+    std::variant<ElementInList<std::string>, ElementInRange<float>, ElementPresent, NumElements, ObjectContentOrNested,
+                 ValidStreamFormat, StringLength, UniqueElements<std::string>, ValidLanguage>;
 
 /// messages that known checks can produce
 using Message = detail::ToMessages<Check>;
@@ -463,6 +488,7 @@ void format_results(std::ostream &s, const ValidationResults &results, bool show
 
 /// build a validator for a given emission profile level
 ProfileValidator make_emission_profile_validator(int level);
+
 /// build a validator for a known profile
 ProfileValidator make_profile_validator(const profiles::Profile &);
 

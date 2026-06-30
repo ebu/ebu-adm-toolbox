@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
   // equivalent to example_configs/measure_all_loudness.json
   auto reader = g.register_process(make_read_adm_bw64("reader", in_path, 1024));
   auto add_block_rtimes = g.register_process(make_add_block_rtimes("add_block_rtimes"));
-  auto measure_loudness = g.register_process(make_update_all_programme_loudnesses("measure_loudness"));
+  auto measure_loudness = g.register_process(make_update_all_programme_loudnesses("measure_loudness", false));
   auto writer = g.register_process(make_write_adm_bw64("writer", out_path));
 
   g.connect(reader->get_out_port("out_samples"), writer->get_in_port("in_samples"));

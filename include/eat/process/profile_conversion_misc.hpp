@@ -92,4 +92,18 @@ framework::ProcessPtr make_infer_object_interact(const std::string &name);
 /// - out_axml (DataPort<ADMData>) : output ADM data
 framework::ProcessPtr make_set_content_dialogue_default(const std::string &name);
 
+/// set missing audioContent language value to und
+///
+/// ports:
+/// - in_axml (DataPort<ADMData>) : input ADM data
+/// - out_axml (DataPort<ADMData>) : output ADM data
+framework::ProcessPtr make_set_content_language(const std::string &name);
+
+/// set missing audioProgramme language value to und
+///
+/// ports:
+/// - in_axml (DataPort<ADMData>) : input ADM data
+/// - out_axml (DataPort<ADMData>) : output ADM data
+framework::ProcessPtr make_set_programme_language(const std::string &name);
+
 }  // namespace eat::process

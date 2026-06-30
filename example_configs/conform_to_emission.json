@@ -168,7 +168,7 @@
                 "profiles": [
                     {
                         "type": "itu_emission",
-                        "level": 0
+                        "level": 1
                     }
                 ]
             },
@@ -191,9 +191,24 @@
             "out_ports": ["out_axml", "out_samples"]
         },
         {
-            "name": "update_all_programme_loudnesses",
-            "type": "update_all_programme_loudnesses",
+            "name": "update_all_loudnesses",
+            "type": "update_all_loudnesses",
+            "parameters": {
+                "emission": true
+            },
             "in_ports": ["in_axml", "in_samples"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_content_language",
+            "type": "set_content_language",
+            "in_ports": ["in_axml"],
+            "out_ports": ["out_axml"]
+        },
+        {
+            "name": "set_programme_language",
+            "type": "set_programme_language",
+            "in_ports": ["in_axml"],
             "out_ports": ["out_axml"]
         },
         {
